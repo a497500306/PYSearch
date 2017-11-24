@@ -184,6 +184,11 @@ didSelectSearchSuggestionAtIndex:(NSInteger)index
 @interface PYSearchViewController : UIViewController
 
 /**
+ The base table view  of search view controller
+ */
+@property (nonatomic, strong) UITableView *baseSearchTableView;
+
+/**
  The delegate
  */
 @property (nonatomic, weak) id<PYSearchViewControllerDelegate> delegate;

@@ -12,7 +12,7 @@
 #define PYTextColor PYSEARCH_COLOR(113, 113, 113)
 #define PYSEARCH_COLORPolRandomColor self.colorPol[arc4random_uniform((uint32_t)self.colorPol.count)]
 
-@interface PYSearchViewController () <UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource, PYSearchSuggestionViewDataSource>
+@interface PYSearchViewController () <UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource, PYSearchSuggestionViewDataSource,UIGestureRecognizerDelegate>
 
 /**
  The header view of search view
@@ -74,10 +74,6 @@
  */
 @property (nonatomic, weak) UIView *searchHistoryTagsContentView;
 
-/**
- The base table view  of search view controller
- */
-@property (nonatomic, strong) UITableView *baseSearchTableView;
 
 /**
  Whether did press suggestion cell
@@ -162,7 +158,8 @@
     // Adjust the view according to the `navigationBar.translucent`
     if (NO == self.navigationController.navigationBar.translucent) {
         self.baseSearchTableView.contentInset = UIEdgeInsetsMake(0, 0, self.view.py_y, 0);
-        self.searchSuggestionVC.view.frame = CGRectMake(0, CGRectGetMaxY(self.navigationController.navigationBar.frame) - self.view.py_y, self.view.py_width, self.view.py_height + self.view.py_y);
+//        CGFloat xx = CGRectGetMaxY(self.navigationController.navigationBar.frame) - self.view.py_y;
+        self.searchSuggestionVC.view.frame = CGRectMake(0, 0, self.view.py_width, self.view.frame.size.height);
         if (!self.navigationController.navigationBar.barTintColor) {
             self.navigationController.navigationBar.barTintColor = PYSEARCH_COLOR(249, 249, 249);
         }
@@ -237,7 +234,9 @@
                 [_swSelf searchBarSearchButtonClicked:_swSelf.searchBar];
             }
         };
-        searchSuggestionVC.view.frame = CGRectMake(0, CGRectGetMaxY(self.navigationController.navigationBar.frame), PYScreenW, PYScreenH);
+        
+//        CGFloat xxx = CGRectGetMaxY(self.navigationController.navigationBar.frame);
+        searchSuggestionVC.view.frame = CGRectMake(0, 0, PYScreenW, self.view.frame.size.height);
         searchSuggestionVC.view.backgroundColor = self.baseSearchTableView.backgroundColor;
         searchSuggestionVC.view.hidden = YES;
         _searchSuggestionView = (UITableView *)searchSuggestionVC.view;
@@ -336,6 +335,14 @@
 
 - (void)setup
 {
+    //隐藏返回按钮
+    [self.navigationItem setHidesBackButton:YES animated:NO];
+    
+    UISwipeGestureRecognizer * recognizer;
+    recognizer = [[UISwipeGestureRecognizer alloc]initWithTarget:self action:@selector(handleSwipeFrom:)];
+    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
+    [self.view addGestureRecognizer:recognizer];
+    
     self.view.backgroundColor = [UIColor whiteColor];
     self.baseSearchTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.navigationController.navigationBar.backIndicatorImage = nil;
@@ -428,6 +435,11 @@
     self.baseSearchTableView.tableFooterView = footerView;
     
     self.hotSearches = nil;
+}
+- (void)handleSwipeFrom:(UISwipeGestureRecognizer *)recognizer{
+    if(recognizer.direction == UISwipeGestureRecognizerDirectionRight) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 
 - (UILabel *)setupTitleLabel:(NSString *)title
